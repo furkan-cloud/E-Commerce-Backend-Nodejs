@@ -1,14 +1,20 @@
 const hs = require("http-status");
+const { list, insert } = require("../services/Users");
 
-const index = () => {
+const index = (req, res) => {
   console.log("User Index");
-  new User({
-    first_name: "Furkan",
-    last_name: "Türkoğlu",
-    email: "furkan@test.com",
-    password: "123456789",
-  })
-    .save()
+  list()
+    .then((userList) => {
+      if (!userList)
+        res.status(hs.INTERNAL_SERVER_ERROR).send({ error: "Sorun var..." });
+      res.status(hs.OK).send(userList);
+    })
+    .catch((err) => res.status(ha.INTERNAL_SERVER_ERROR).send(e));
+  res.status(hs.OK).send({ message: "User Index" });
+};
+
+const create = (req, res) => {
+  insert()
     .then((createdUser) => {
       if (!createdUser)
         res.status(hs.INTERNAL_SERVER_ERROR).send({ error: "Sorun var..." });
@@ -20,4 +26,5 @@ const index = () => {
 
 module.exports = {
   index,
+  create,
 };
