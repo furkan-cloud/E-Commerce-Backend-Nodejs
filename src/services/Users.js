@@ -1,13 +1,16 @@
 const User = require("../models/User");
 
+const list = () => {
+  return User.find({});
+};
+
 const insert = (data) => {
   return new User(data).save();
 };
 
-const list = () => {
-  return User.find({});
+const findOne = (where) => {
+  return User.findOne(where);
 };
-const findOne = () => {};
 const deleteDoc = () => {};
 const updateDoc = () => {};
 

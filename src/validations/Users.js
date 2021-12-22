@@ -17,7 +17,19 @@ const updateUser = Joi.object({
   favorites: Joi.array(),
 });
 
+const userQuery = Joi.object({
+  id: Joi.string().required().min(2),
+  location: Joi.string().required().min(2),
+})
+
+const userLogin = Joi.object({
+  email: Joi.string().email().required().min(6),
+  password: Joi.string().required().min(8),
+})
+
 module.exports = {
   createUser,
   updateUser,
+  userQuery,
+  userLogin
 };

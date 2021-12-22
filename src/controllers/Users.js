@@ -1,10 +1,8 @@
 const hs = require("http-status");
-const { list, insert } = require("../services/Users");
-const { passwordToHash } = require("../scripts/utils/helper");
+const { list, insert, findOne } = require("../services/Users");
+const { passwordToHash, generateJWTAccessToken, generateJWTRefreshToken } = require("../scripts/utils/helper");
 
 const index = (req, res) => {
-  console.log("User Index");
-
   list()
     .then((userList) => {
       if (!userList) res.status(hs.INTERNAL_SERVER_ERROR).send({ error: "Sorun var..." });
@@ -23,7 +21,27 @@ const create = (req, res) => {
     .catch((err) => res.status(hs.INTERNAL_SERVER_ERROR).send(err));
 };
 
+const login = (req, res) => {
+  req.body.password = passwordToHash(req.body.password);
+  findOne(req.body)
+    .then((user) => {
+      if (!user) return res.status(hs.NOT_FOUND).send({ message: "Böyle bir kullanıcı bulunmamaktadır" });
+      user = {
+        ...user.toObject(),
+        tokens: {
+          access_token: generateJWTAccessToken(user),
+          refresh_token: generateJWTRefreshToken(user),
+        },
+      };
+
+      delete user.password;
+      res.status(hs.OK).send(user);
+    })
+    .catch((err) => res.status(hs.INTERNAL_SERVER_ERROR).send(err));
+};
+
 module.exports = {
   index,
   create,
+  login,
 };
