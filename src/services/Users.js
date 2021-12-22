@@ -7,8 +7,14 @@ const insert = (data) => {
 const list = () => {
   return User.find({});
 };
+const findOne = () => {};
+const deleteDoc = () => {};
+const updateDoc = () => {};
 
 module.exports = {
   list,
   insert,
+  findOne,
+  deleteDoc,
+  updateDoc,
 };

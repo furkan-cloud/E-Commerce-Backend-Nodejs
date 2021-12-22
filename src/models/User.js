@@ -6,6 +6,24 @@ const UserSchema = new Mongoose.Schema(
     last_name: String,
     email: String,
     password: String,
+    addresses: [
+      {
+        title: String,
+        address1: String,
+        address2: String,
+        country: String,
+        province: String,
+        code: String,
+      },
+    ],
+    phones: [
+      {
+        number: String,
+        type: String,
+      },
+    ],
+    favorites: [],
+    
   },
   { timestamps: true, versionKey: false }
 );
