@@ -7,7 +7,8 @@ const authenticateToken = (req, res, next) => {
   if (!token) return res.status(hs.UNAUTHORIZED).send({ message: "Bu işlemi yapabilmek için öncelikle giriş yapmış olmanız gerekmektedir" });
   JWT.verify(token, process.env.ACCESS_TOKEN_SECRET_KEY, (err, user) => {
     if (err) return res.status(hs.FORBIDDEN).send(err);
-    req.user = user;
+    if (!user?._doc?.isAdmin) return res.status(hs.UNAUTHORIZED).send({ message: "Bu işlemi yapabilmek için yönetici olmanız gerekmektedir" });
+    req.user = user?._doc;
     next();
   });
   // console.log("token :>> ", token);

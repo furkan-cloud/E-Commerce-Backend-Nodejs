@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const { UserRoutes } = require("./routes");
+const { UserRoutes,ProductRoutes } = require("./routes");
 const loaders = require("./loaders");
 const config = require("./config");
 
@@ -13,6 +13,7 @@ app.use(express.json());
 const serverRunning = () => {
   console.log(`Server is running on ${process.env.APP_PORT}`);
   app.use("/users", UserRoutes);
+  app.use("/products", ProductRoutes);
 };
 
 app.listen(process.env.APP_PORT, serverRunning);
