@@ -18,7 +18,13 @@ const updateProduct = Joi.object({
   media: Joi.string(),
 });
 
+const addComment = Joi.object({
+  comment: Joi.string().min(2),
+  rate: Joi.number().required().min(1).max(5),
+});
+
 module.exports = {
   createProduct,
   updateProduct,
+  addComment,
 };

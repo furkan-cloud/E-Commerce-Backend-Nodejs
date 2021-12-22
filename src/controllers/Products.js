@@ -1,5 +1,5 @@
 const hs = require("http-status");
-const { list, insert, updateDoc } = require("../services/Products");
+const { list, insert, findOne, updateDoc } = require("../services/Products");
 
 const index = (req, res) => {
   list()
@@ -19,6 +19,7 @@ const create = (req, res) => {
     })
     .catch((err) => res.status(hs.INTERNAL_SERVER_ERROR).send(err));
 };
+
 const update = (req, res) => {
   if (!req.params.id) return res.status(hs.BAD_REQUEST).send({ message: "Eksik bilgi..." });
   updateDoc(req.params.id, req.body)
@@ -29,8 +30,32 @@ const update = (req, res) => {
     .catch((err) => res.status(hs.INTERNAL_SERVER_ERROR).send(err));
 };
 
+const addComment = (req, res) => {
+  if (!req.params.id) return res.status(hs.BAD_REQUEST).send({ message: "Eksik bilgi..." });
+  findOne({ _id: req.params.id })
+    .then((mainProduct) => {
+      if (!mainProduct) return res.status(hs.NOT_FOUND).send({ message: "ürün bulunamadı..." });
+      console.log("mainProduct :>> ", mainProduct);
+      const comment = {
+        ...req.body,
+        created_at: new Date(),
+        user_id: req.user,
+      };
+      mainProduct.comments.push(comment);
+      // mainProduct.save().then(updatedDoc) bu da kullanılabilir
+      updateDoc(req.params.id, mainProduct)
+        .then((updatedDoc) => {
+          if (!updatedDoc) return res.status(hs.NOT_FOUND).send({ message: "ürün bulunamadı..." });
+          res.status(hs.OK).send(updatedDoc);
+        })
+        .catch((err) => res.status(hs.INTERNAL_SERVER_ERROR).send(err));
+    })
+    .catch((err) => res.status(hs.INTERNAL_SERVER_ERROR).send(err));
+};
+
 module.exports = {
   index,
   create,
   update,
+  addComment,
 };
