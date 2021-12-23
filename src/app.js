@@ -1,14 +1,18 @@
 const express = require("express");
-const app = express();
-const { UserRoutes,ProductRoutes } = require("./routes");
+const fileUpload = require("express-fileUpload");
+const path = require("path");
+
+const { UserRoutes, ProductRoutes } = require("./routes");
 const loaders = require("./loaders");
 const config = require("./config");
-
 
 config();
 loaders();
 
+const app = express();
+app.use("/product-images", express.static(path.join(__dirname, "./", "uploads/products")));
 app.use(express.json());
+app.use(fileUpload());
 
 const serverRunning = () => {
   console.log(`Server is running on ${process.env.APP_PORT}`);

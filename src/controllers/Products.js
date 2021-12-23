@@ -1,5 +1,7 @@
 const hs = require("http-status");
 const { list, insert, findOne, updateDoc } = require("../services/Products");
+const path = require("path");
+const { checkSecureFile } = require("../scripts/utils/helper");
 
 const index = (req, res) => {
   list()
@@ -53,9 +55,32 @@ const addComment = (req, res) => {
     .catch((err) => res.status(hs.INTERNAL_SERVER_ERROR).send(err));
 };
 
+const addMedia = (req, res) => {
+  if (!req.params.id || !req.files?.file || !checkSecureFile(req?.files?.file?.mimetype)) return res.status(hs.BAD_REQUEST).send({ message: "Eksik bilgi..." });
+  console.log(`req.files`, req.files);
+  findOne({ _id: req.params.id }).then((mainProduct) => {
+    if (!mainProduct) return res.status(hs.NOT_FOUND).send({ message: "ürün bulunamadı..." });
+    // const fileName = mainProduct._id?.toString();
+    const extension = path.extname(req.files.file.name);
+    const fileName = `${mainProduct._id?.toString()}${extension}`;
+    const folderPath = path.join(__dirname, "../", "uploads/products", fileName);
+    req.files.file.mv(folderPath, function (err) {
+      if (err) return res.status(hs.INTERNAL_SERVER_ERROR).send(err);
+      mainProduct.media = fileName;
+      updateDoc(req.params.id, mainProduct)
+        .then((updatedDoc) => {
+          if (!updatedDoc) return res.status(hs.NOT_FOUND).send({ message: "ürün bulunamadı..." });
+          res.status(hs.OK).send(updatedDoc);
+        })
+        .catch((err) => res.status(hs.INTERNAL_SERVER_ERROR).send(err));
+    });
+  });
+};
+
 module.exports = {
   index,
   create,
   update,
   addComment,
+  addMedia,
 };

@@ -23,8 +23,13 @@ const addComment = Joi.object({
   rate: Joi.number().required().min(1).max(5),
 });
 
+// const addMedia = Joi.object({
+//   file: Joi.file().required(),
+// });
+
 module.exports = {
   createProduct,
   updateProduct,
   addComment,
+  // addMedia,
 };
