@@ -5,9 +5,11 @@ const path = require("path");
 const { UserRoutes, ProductRoutes } = require("./routes");
 const loaders = require("./loaders");
 const config = require("./config");
+const events = require("./scripts/events");
 
 config();
 loaders();
+events();
 
 const app = express();
 app.use("/product-images", express.static(path.join(__dirname, "./", "uploads/products")));

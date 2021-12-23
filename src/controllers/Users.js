@@ -1,6 +1,8 @@
 const hs = require("http-status");
-const { list, insert, findOne } = require("../services/Users");
+const uuid = require("uuid");
+const { list, insert, findOne, findOneAndUpdate } = require("../services/Users");
 const { passwordToHash, generateJWTAccessToken, generateJWTRefreshToken } = require("../scripts/utils/helper");
+const eventEmitter = require("../scripts/events/eventEmitter");
 
 const index = (req, res) => {
   list()
@@ -40,8 +42,29 @@ const login = (req, res) => {
     .catch((err) => res.status(hs.INTERNAL_SERVER_ERROR).send(err));
 };
 
+const resetPassword = (req, res) => {
+  //findOneAndUpdate de kullanılabilir
+  const newPassword = uuid.v4()?.split("-")[0] || `nw-usr-${new Date().getTime()}`;
+  console.log("newPassword :>> ", newPassword);
+
+  findOneAndUpdate({ email: req.body.email }, { password: passwordToHash(newPassword) }).then((fetchedUser) => {
+    if (!fetchedUser) return res.status(hs.NOT_FOUND).send({ message: "User not found" });
+
+    //send data
+    eventEmitter.emit("send_email", {
+      to: req.body.email, // list of receivers
+      subject: "Reset Password", // Subject line
+      html: `<b>Your new password is: ${newPassword}</b>`, // html body
+    });
+    res.status(200).send({
+      message: "Your new password sent to your email",
+    });
+  });
+};
+
 module.exports = {
   index,
   create,
   login,
+  resetPassword,
 };
